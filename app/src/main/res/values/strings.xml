@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">FitnessPage</string>
+    <string name="category_cardio">Cardio</string>
+    <string name="category_strength">Strength</string>
+    <string name="category_flexibility">Flexibility</string>
+
+    <string name="recommendation_run">30 minutes of running</string>
+    <string name="recommendation_jump_rope">15 minutes of jumping rope</string>
+    <string name="recommendation_swimming">Swimming for 30 minutes</string>
+    <string name="recommendation_cycling">Cycling for 45 minutes</string>
+    <string name="recommendation_hiking">Hiking for 1 hour</string>
+
+    <string name="recommendation_bench_press">3 sets of 10 reps of bench press</string>
+    <string name="recommendation_squat">3 sets of 10 reps of squats</string>
+    <string name="recommendation_deadlift">3 sets of 10 reps of deadlifts</string>
+    <string name="recommendation_overhead_press">3 sets of 10 reps of overhead press</string>
+    <string name="recommendation_pull_up">3 sets of 8 pull-ups</string>
+
+    <string name="recommendation_yoga">Yoga for 30 minutes</string>
+    <string name="recommendation_stretching">Static stretching for 15 minutes</string>
+    <string name="recommendation_dynamic_stretching">Dynamic stretching routine</string>
+    <string name="recommendation_static_stretching">Static stretching routine</string>
+    <string name="recommendation_pilates">Pilates for 30 minutes</string>
+</resources>
