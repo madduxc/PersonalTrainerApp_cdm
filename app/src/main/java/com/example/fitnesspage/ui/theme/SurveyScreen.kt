@@ -32,10 +32,7 @@ fun SurveyScreen(
     uiState: UiState,
     modifier: Modifier= Modifier,
     ){
-    Card(modifier = modifier, shape = RoundedCornerShape(
-        topEnd = 20.dp, topStart = 40.dp,
-        bottomEnd = 20.dp, bottomStart = 40.dp
-    ) ) {
+    Card(modifier = modifier) {
         Column {
             Text(text = "Survey", style = MaterialTheme.typography.headlineMedium) // Adjusted for better style
             Text(text = "What are your goals for exercising?", style = MaterialTheme.typography.bodyLarge)
@@ -52,7 +49,7 @@ fun SurveyScreen(
                         ),
                         onClick = {
 //                            visible = false
-                            viewModel.updateCurrentCategory(it)
+//                            viewModel.updateCurrentCategory(it)
 //                            navigateFunction()
                         })
                 }
@@ -97,8 +94,8 @@ fun CategoryCard(
     }
 
 }
-// preview
 
+// preview
 fun getSampleUiState(): UiState {
     return UiState(
         categories = listOf(
@@ -121,8 +118,8 @@ fun getSampleUiState(): UiState {
 @Composable
 @Preview(showBackground = true)
 fun PreviewSurveyScreen() {
-    // Create a sample ViewModel. You might want to use a mocked version if actual logic isn't needed.
-    val viewModel = FitnessAppModel() // Adjust based on your implementation
+    // Create a sample ViewModel.
+    val viewModel = FitnessAppModel()
     val sampleUiState = getSampleUiState()
 
     MaterialTheme {

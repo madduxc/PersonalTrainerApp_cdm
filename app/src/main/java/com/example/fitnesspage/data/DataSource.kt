@@ -4,6 +4,8 @@ import com.example.fitnesspage.model.Category
 import com.example.fitnesspage.model.Recommendation
 import com.example.fitnesspage.R
 
+// this is hardcoded-strings,
+// this just serves as examples for what needs to be in our database
 object DataSource {
     private val cardioCategory = Category(
         name = R.string.category_cardio,

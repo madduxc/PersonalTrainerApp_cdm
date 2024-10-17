@@ -8,39 +8,42 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-class FitnessAppModel : ViewModel(){
+// ViewModel class manages UI state of the App
+// in particular, it holds data that is relevant to the UI but should not be lost during configuration changes.
+class FitnessAppModel : ViewModel() {
+    // MutableStateFlow is a type of Flow that holds a mutable value, and
+    // In this case, it holds an instance of UiState and only the ViewModel can modify the state
     private val _uiState = MutableStateFlow(UiState())
+    // This is the read-only version of _uiState and no other ui components can modify it directly
+    // asStateFlow() converts the mutable state into an immutable StateFlow.
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    init{
+    init {
         initializeUiState()
     }
-    private fun initializeUiState(){
+    //  Sets the initial state of _uiState.
+    //  and updates _uiState.value to the new instance of UiState,
+    //  with the categories property populated from DataSource.listOfCategories
+    private fun initializeUiState() {
         _uiState.value = UiState(
             categories = DataSource.listOfCategories
         )
     }
-
-    fun updateCurrentCategory(category: Category) {
-        _uiState.update {
-            it.copy(
-                currentCategory = category
-            )
-        }
-    }
-
-
-    fun updateCurrentRecommendation(recommendation: Recommendation?) {
-        _uiState.update {
-            it.copy(
-                currentRecommendation = recommendation
-            )
-        }
-    }
 }
-
-//data class UiState (
-//    val categories: List<Category> = DataSource.listOfCategories,
-//    val currentCategory: Category? = null,
-//    val currentRecommendation: Recommendation? = null,
-//)
+//    fun updateCurrentCategory(category: Category) {
+//        _uiState.update {
+//            it.copy(
+//                currentCategory = category
+//            )
+//        }
+//    }
+//
+//
+//    fun updateCurrentRecommendation(recommendation: Recommendation?) {
+//        _uiState.update {
+//            it.copy(
+//                currentRecommendation = recommendation
+//            )
+//        }
+//    }
+//}
