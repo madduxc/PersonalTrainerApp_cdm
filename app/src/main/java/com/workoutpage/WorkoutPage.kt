@@ -1,17 +1,16 @@
 package com.workoutpage
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -54,9 +53,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val bundle = Bundle()
-            bundle.putString("title", "Leg Press")
-
             MaterialTheme {
                 WorkoutPage()
             }
@@ -75,13 +71,17 @@ fun WorkoutPage() {
         bottomBar = {
             WorkoutBottomBar()
         },
-    )
-    { innerPadding ->
-        Column {
-            SharedContent(innerPadding)
-            WorkoutTiles()
+        content =     { innerPadding ->
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                SharedContent()
+                WorkoutTiles()
+            }
         }
-    }
+
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,6 +136,79 @@ fun WorkoutBottomBar() {
 }
 
 @Composable
+fun SharedContent() {
+    // https://developer.android.com/reference/java/text/DateFormat
+    val date = Calendar.getInstance().time
+    val formatter = SimpleDateFormat.getDateInstance()
+    val formatedDate = formatter.format(date)
+
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = "Here is your workout routine for \n $formatedDate",
+        fontSize = 20.sp,
+        lineHeight = 28.sp,
+        modifier = Modifier.padding()
+            .height(60.dp),
+
+        )
+}
+
+@Composable
+// Main Screen - set up the list and handle clicks
+fun WorkoutTiles() {
+    val navController = rememberNavController()
+
+    // sample data
+    val tiles = remember {
+        listOf(
+            TileData(title = "Leg Press", weight = 120, sets = 2, reps = 10),
+            TileData(title = "Leg Extension", weight = 30, sets = 4, reps = 12),
+            TileData(title = "Chest Press", weight = 40, sets = 5, reps = 11),
+            TileData(title = "Bicep Curl", weight = 50, sets = 3, reps = 10),
+            TileData(title = "Squat", weight = 150, sets = 3, reps = 10),
+            TileData(title = "Lat Pull", weight = 50, sets = 3, reps = 10),
+        )
+    }
+    // Setting up the NavHost with the destinations
+    NavHost(
+        navController = navController,
+        startDestination = "workout",
+        modifier = Modifier.fillMaxSize()
+            .padding(4.dp)
+    ) {
+        // Home screen route
+        composable("workout") { TileList(tiles, navController) }
+
+        // New page route
+        composable("exercise/{title}/{weight}/{sets}/{reps}") { backStackEntry ->
+            val title = backStackEntry.arguments?.getString("title")
+            val weight = backStackEntry.arguments?.getString("weight")?.toIntOrNull()
+            val sets = backStackEntry.arguments?.getString("sets")?.toIntOrNull()
+            val reps = backStackEntry.arguments?.getString("reps")?.toIntOrNull()
+
+            ExerciseCard(
+                navController, TileData(
+                    title = title?: "Exercise",
+                    weight?: 0,
+                    sets?: 1,
+                    reps?:0)
+            )
+        }
+    }
+}
+
+@Composable
+// displays the tiles
+fun TileList(tiles: List<TileData>, navController: NavController) {
+    LazyColumn {
+        items(tiles) { tile ->
+            //
+            TileItem(tile, navController)
+        }
+    }
+}
+
+@Composable
 // represents each tile
 fun TileItem(tile: TileData, navController: NavController) {
     //
@@ -144,7 +217,9 @@ fun TileItem(tile: TileData, navController: NavController) {
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                navController.navigate("exercise")
+                navController.navigate(
+                    "exercise/${tile.title}/${tile.weight}/${tile.sets}/${tile.reps}"
+                )
             },
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, Color.Blue)
@@ -169,59 +244,6 @@ fun TileItem(tile: TileData, navController: NavController) {
             )
         }
     }
-}
-
-@Composable
-// displays the tiles
-fun TileList(tiles: List<TileData>, navController: NavController) {
-    LazyColumn {
-        items(tiles) { tile ->
-            //
-            TileItem(tile, navController)
-        }
-    }
-}
-
-@Composable
-// Main Screen - set up the list and handle clicks
-fun WorkoutTiles() {
-    val navController = rememberNavController()
-
-    // sample data
-    val tiles = remember {
-        listOf(
-            TileData(title = "Leg Press", weight = 20, sets = 3, reps = 10),
-            TileData(title = "Leg Extension", weight = 30, sets = 4, reps = 12),
-            TileData(title = "Chest Press", weight = 40, sets = 5, reps = 11),
-            TileData(title = "Bicep Curl", weight = 50, sets = 3, reps = 10)
-        )
-    }
-    // Setting up the NavHost with the destinations
-    NavHost(navController = navController, startDestination = "workout") {
-        // Home screen route
-        composable("workout") { TileList(tiles, navController) }
-
-        // New page route
-        composable("exercise") { ExerciseCard(navController) }
-    }
-}
-
-@Composable
-fun SharedContent(innerPadding: PaddingValues) {
-    // https://developer.android.com/reference/java/text/DateFormat
-    val date = Calendar.getInstance().time
-    val formatter = SimpleDateFormat.getDateInstance()
-    val formatedDate = formatter.format(date)
-
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text = "Here is your workout routine for \n $formatedDate",
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
-        modifier = Modifier.padding(innerPadding)
-            .height(60.dp),
-
-        )
 }
 
 @Composable
@@ -297,10 +319,13 @@ fun DefaultPreview() {
             },
         )
         { innerPadding ->
+            Box(
+                modifier = Modifier.padding(innerPadding)
+            )
             Column(
                 Modifier.safeContentPadding()
             ) {
-                SharedContent(innerPadding = PaddingValues())
+                SharedContent()
                 WorkoutText(completeMessage = "xx Down", toGoMessage = "xx To Go")
                 WorkoutTiles()
             }
