@@ -69,7 +69,7 @@ fun FitnessPlanPage(
             }
             // Once this button is clicked, data from this screen should be collected
             // and pushed to the Workout page screen
-            Button(onClick = { /* This should route to Workout page screen */ }) {
+            Button(onClick = { navController.navigate("workout") }) {
                 Text("Start Workout")
             }
         }

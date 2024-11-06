@@ -21,6 +21,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.fitnesspage.ui.theme.FitnessPlanPage
 import com.example.fitnesspage.ui.theme.SurveyScreen
+import com.workoutpage.WorkoutPage
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
@@ -64,5 +65,6 @@ fun FitnessPlanApp(
             val answers = Json.decodeFromString<Map<String, Set<String>>>(answersJson)
             FitnessPlanPage(answers = answers, navController = navController)
         }
+        composable(route = "workout") { WorkoutPage()}
     }
 }
