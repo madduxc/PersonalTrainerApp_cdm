@@ -61,12 +61,12 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
             questionTitle = "2) What is your fitness level?:",
             answers = listOf("Novice/Beginner", "Intermediate", "Advance"),
         ),
-//        SurveyModel(
-//            questionType = QuestionType.SINGLE_CHOICE,
-//            questionId = "id3",
-//            questionTitle = "3) What is your age:",
-//            answers = listOf("18-30", "30-39", "40-49", "50+"),
-//        )
+        SurveyModel(
+            questionType = QuestionType.SINGLE_CHOICE,
+            questionId = "id3",
+            questionTitle = "3) What is your targeted muscle group?:",
+            answers = listOf("Upper-body", "Lower-body", "Full-body"),
+        )
     )
     SurveyScreen2(
         survey = sampleSurvey,
