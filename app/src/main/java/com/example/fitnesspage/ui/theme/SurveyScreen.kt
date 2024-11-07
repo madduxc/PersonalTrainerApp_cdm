@@ -68,6 +68,25 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
             answers = listOf("Upper-body", "Lower-body", "Full-body"),
         )
     )
+    // Define answer mappings for backend values
+    val answerMappings = mapOf(
+        "id1" to mapOf(
+            "Build strength and muscle mass" to "STRENGTH",
+            "Lose weight" to "CARDIO",
+            "Improve flexibility" to "FLEXIBILITY"
+        ),
+        "id2" to mapOf(
+            "Novice/Beginner" to "BEGINNER",
+            "Intermediate" to "INTERMEDIATE",
+            "Advance" to "ADVANCED"
+        ),
+        "id3" to mapOf(
+            "Upper-body" to "UPPER",
+            "Lower-body" to "LOWER",
+            "Full-body" to "FULL"
+        )
+    )
+
     SurveyScreen2(
         survey = sampleSurvey,
         backgroundColor = Color.White,
@@ -84,7 +103,15 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
             unSelectedColor = Color.Gray,
             borderColor = Color.Gray
         ),
-        onFinishButtonClicked = { answers -> onFinishSurvey(answers) } // Pass callback to save answers
+        onFinishButtonClicked = { answers ->
+            // Convert answers to backend values
+            val backendAnswers = answers.mapValues { (questionId, selectedAnswers) ->
+                selectedAnswers.mapNotNull { answer ->
+                    answerMappings[questionId]?.get(answer)
+                }.toSet()
+            }
+            onFinishSurvey(backendAnswers) // Pass converted answers to callback
+        }
     )
 }
 
