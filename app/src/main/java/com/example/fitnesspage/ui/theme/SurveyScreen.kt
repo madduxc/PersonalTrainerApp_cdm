@@ -15,36 +15,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Snackbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
-import com.example.fitnesspage.model.Category
-import com.example.fitnesspage.model.FitnessAppModel
+
 import com.example.fitnesspage.model.QuestionType
 import com.example.fitnesspage.model.SingleOptionUI
 import com.example.fitnesspage.model.SurveyModel
 import com.example.fitnesspage.model.SurveyText
-//
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.res.stringResource
-import com.example.fitnesspage.R
+
 
 @Composable
 fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
@@ -59,15 +48,34 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
             questionType = QuestionType.SINGLE_CHOICE,
             questionId = "id2",
             questionTitle = "2) What is your fitness level?:",
-            answers = listOf("Novice/Beginner", "Intermediate", "Advance"),
+            answers = listOf("Novice/Beginner", "Intermediate", "Advanced"),
         ),
-//        SurveyModel(
-//            questionType = QuestionType.SINGLE_CHOICE,
-//            questionId = "id3",
-//            questionTitle = "3) What is your age:",
-//            answers = listOf("18-30", "30-39", "40-49", "50+"),
-//        )
+        SurveyModel(
+            questionType = QuestionType.SINGLE_CHOICE,
+            questionId = "id3",
+            questionTitle = "3) What is your targeted muscle group?:",
+            answers = listOf("Upper-body", "Lower-body", "Full-body"),
+        )
     )
+    // Define answer mappings for backend values
+    val answerMappings = mapOf(
+        "id1" to mapOf(
+            "Build strength and muscle mass" to "STRENGTH",
+            "Lose weight" to "CARDIO",
+            "Improve flexibility" to "FLEXIBILITY"
+        ),
+        "id2" to mapOf(
+            "Novice/Beginner" to "BEGINNER",
+            "Intermediate" to "INTERMEDIATE",
+            "Advanced" to "ADVANCED"
+        ),
+        "id3" to mapOf(
+            "Upper-body" to "UPPER",
+            "Lower-body" to "LOWER",
+            "Full-body" to "FULL"
+        )
+    )
+
     SurveyScreen2(
         survey = sampleSurvey,
         backgroundColor = Color.White,
@@ -84,7 +92,15 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
             unSelectedColor = Color.Gray,
             borderColor = Color.Gray
         ),
-        onFinishButtonClicked = { answers -> onFinishSurvey(answers) } // Pass callback to save answers
+        onFinishButtonClicked = { answers ->
+            // Convert answers to backend values
+            val backendAnswers = answers.mapValues { (questionId, selectedAnswers) ->
+                selectedAnswers.mapNotNull { answer ->
+                    answerMappings[questionId]?.get(answer)
+                }.toSet()
+            }
+            onFinishSurvey(backendAnswers) // Pass converted answers to callback
+        }
     )
 }
 
@@ -196,8 +212,6 @@ fun SingleChoiceQuestion(
 
 @Composable
 fun SurveyScreen(
-    viewModel: FitnessAppModel,
-    uiState: UiState,
     modifier: Modifier = Modifier,
     onSurveyFinished: (Map<String, Set<String>>) -> Unit // Add a parameter to handle survey answers
 ) {
@@ -210,107 +224,3 @@ fun SurveyScreen(
         }
     }
 }
-
-
-//@Composable
-//fun SurveyScreen(
-//    viewModel: FitnessAppModel,
-//    uiState: UiState,
-//    modifier: Modifier= Modifier,
-//    ){
-//    Card(modifier = modifier) {
-//        Column {
-//            Text(
-//                text = "Fitness Plan Survey",
-//                style = MaterialTheme.typography.headlineMedium
-//            )
-            // SurveyView()
-
-//            Text(text = "What are your goals for exercising?", style = MaterialTheme.typography.bodyLarge)
-//            LazyColumn(modifier = modifier.padding(top = dimensionResource(id = R.dimen.padding_medium))) {
-//                items(uiState.categories) {
-//                    CategoryCard(category = it, modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(
-//                            bottom = dimensionResource(
-//                                id = R.dimen.padding_small
-//                            ),
-//                            start = dimensionResource(id = R.dimen.padding_medium),
-//                            end = dimensionResource(id = R.dimen.padding_medium)
-//                        ),
-//                        onClick = {
-//                            visible = false
-//                            viewModel.updateCurrentCategory(it)
-//                            navigateFunction()
-//                        })
-//                }
-//        }
-//
-//    }}
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun CategoryCard(
-//    category: Category,
-//    modifier: Modifier = Modifier,
-//    onClick: () -> Unit = {},
-//    colors: CardColors = CardDefaults.cardColors()
-//) {
-//    Card(
-//        colors = colors,
-//        onClick = onClick,
-//        shape = RoundedCornerShape(
-//            topEnd = 20.dp, topStart = 40.dp,
-//            bottomEnd = 20.dp, bottomStart = 40.dp
-//        ),
-//        modifier = modifier
-//    ) {
-//        Row(
-//            modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Column {
-//                Text(
-//                    text = stringResource(id = category.name),
-//                    style = MaterialTheme.typography.titleMedium
-//                )
-//
-//            }
-//
-//        }
-//
-//    }
-//
-//}
-
-// preview
-//fun getSampleUiState(): UiState {
-//    return UiState(
-//        categories = listOf(
-//            Category(name = R.string.category_cardio, list = listOf(
-//                Recommendation(name = R.string.recommendation_run),
-//                Recommendation(name = R.string.recommendation_jump_rope)
-//            )),
-//            Category(name = R.string.category_strength, list = listOf(
-//                Recommendation(name = R.string.recommendation_bench_press),
-//                Recommendation(name = R.string.recommendation_squat)
-//            )),
-//            Category(name = R.string.category_flexibility, list = listOf(
-//                Recommendation(name = R.string.recommendation_yoga),
-//                Recommendation(name = R.string.recommendation_stretching)
-//            ))
-//        )
-//    )
-//}
-
-//@Composable
-//@Preview(showBackground = true)
-//fun PreviewSurveyScreen() {
-//    // Create a sample ViewModel.
-//    val viewModel = FitnessAppModel()
-//    val sampleUiState = getSampleUiState()
-//
-//    MaterialTheme {
-//        SurveyScreen(viewModel = viewModel, uiState = sampleUiState)
-//    }
-//}
