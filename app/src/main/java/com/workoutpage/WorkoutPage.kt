@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -120,7 +121,7 @@ fun WorkoutTopBar(onNavClick: () -> Unit) {
 }
 
 @Composable
-fun WorkoutBottomBar() {
+fun WorkoutBottomBar(navController: NavController) {
     BottomAppBar(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor
     ) {
@@ -129,7 +130,7 @@ fun WorkoutBottomBar() {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            StatsButton { }
+            StatsButton {navController.navigate("summary") }
             EditButton { }
         }
     }
@@ -178,7 +179,9 @@ fun WorkoutTiles() {
     ) {
         // Home screen route
         composable("workout") { TileList(tiles, navController) }
-
+        composable("summary"){
+            SummaryLayout()
+        }
         // New page route
         composable("exercise/{title}/{weight}/{sets}/{reps}") { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title")
