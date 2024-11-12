@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,16 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.workoutpage.ui.theme.WorkoutPageTheme
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -55,7 +49,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                WorkoutPage()
+                WorkoutPage(navController = rememberNavController())
             }
         }
     }
@@ -64,13 +58,14 @@ class MainActivity : ComponentActivity() {
 // **************************************************************************
 
 @Composable
-fun WorkoutPage() {
+fun WorkoutPage(navController: NavController
+) {
     Scaffold(
         topBar = {
-            WorkoutTopBar { }
+            WorkoutTopBar(navController)
         },
         bottomBar = {
-            WorkoutBottomBar()
+            WorkoutBottomBar(navController)
         },
         content =     { innerPadding ->
             Column(
@@ -87,7 +82,7 @@ fun WorkoutPage() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkoutTopBar(onNavClick: () -> Unit) {
+fun WorkoutTopBar(navButtonController: NavController) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = { },
@@ -99,7 +94,8 @@ fun WorkoutTopBar(onNavClick: () -> Unit) {
 
     ) {
         IconButton(
-            onClick = onNavClick
+            onClick = { handleBackButtonClick(navButtonController) }
+            // onClick = onNavClick
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -120,8 +116,20 @@ fun WorkoutTopBar(onNavClick: () -> Unit) {
 
 }
 
+fun handleBackButtonClick(navButtonController: NavController) {
+    // Handle the back button press here
+    if (navButtonController.currentBackStackEntry != null) {
+        // You can navigate back if there's a previous screen in the stack
+        navButtonController.popBackStack()
+    } else {
+        // do nothing
+    }
+}
+
 @Composable
 fun WorkoutBottomBar(navController: NavController) {
+
+    // Setting up the NavHost with the destinations
     BottomAppBar(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor
     ) {
@@ -130,7 +138,7 @@ fun WorkoutBottomBar(navController: NavController) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            StatsButton {navController.navigate("summary") }
+            StatsButton(navController)
             EditButton { }
         }
     }
@@ -157,7 +165,7 @@ fun SharedContent() {
 @Composable
 // Main Screen - set up the list and handle clicks
 fun WorkoutTiles() {
-    val navController = rememberNavController()
+    val navTileController = rememberNavController()
 
     // sample data
     val tiles = remember {
@@ -172,16 +180,14 @@ fun WorkoutTiles() {
     }
     // Setting up the NavHost with the destinations
     NavHost(
-        navController = navController,
+        navController = navTileController,
         startDestination = "workout",
         modifier = Modifier.fillMaxSize()
             .padding(4.dp)
     ) {
         // Home screen route
-        composable("workout") { TileList(tiles, navController) }
-        composable("summary"){
-            SummaryLayout()
-        }
+        composable("workout") { TileList(tiles, navTileController) }
+
         // New page route
         composable("exercise/{title}/{weight}/{sets}/{reps}") { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title")
@@ -190,7 +196,7 @@ fun WorkoutTiles() {
             val reps = backStackEntry.arguments?.getString("reps")?.toIntOrNull()
 
             ExerciseCard(
-                navController, TileData(
+                navTileController, TileData(
                     title = title?: "Exercise",
                     weight?: 0,
                     sets?: 1,
@@ -202,25 +208,25 @@ fun WorkoutTiles() {
 
 @Composable
 // displays the tiles
-fun TileList(tiles: List<TileData>, navController: NavController) {
+fun TileList(tiles: List<TileData>, navTileController: NavController) {
     LazyColumn {
         items(tiles) { tile ->
             //
-            TileItem(tile, navController)
+            TileItem(tile, navTileController)
         }
     }
 }
 
 @Composable
 // represents each tile
-fun TileItem(tile: TileData, navController: NavController) {
+fun TileItem(tile: TileData, navTileController: NavController) {
     //
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                navController.navigate(
+                navTileController.navigate(
                     "exercise/${tile.title}/${tile.weight}/${tile.sets}/${tile.reps}"
                 )
             },
@@ -250,37 +256,14 @@ fun TileItem(tile: TileData, navController: NavController) {
 }
 
 @Composable
-fun WorkoutText(completeMessage: String, toGoMessage: String, modifier: Modifier = Modifier) {
-    //
-    Column(
-        verticalArrangement = Arrangement.Top,
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = completeMessage,
-            fontSize = 28.sp,
-            lineHeight = 30.sp,
-            textAlign = TextAlign.Center,
-            modifier = modifier.align(alignment = Alignment.CenterHorizontally)
-        )
-        Text(
-            text = toGoMessage,
-            fontSize = 28.sp,
-            lineHeight = 30.sp,
-            modifier = modifier.align(alignment = Alignment.CenterHorizontally)
-        )
-    }
-}
-
-@Composable
-fun StatsButton(onStatsClick: () -> Unit) {
-    //
+fun StatsButton(navController: NavController)
+{
     OutlinedButton(
         modifier = Modifier.padding(12.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(Color.Blue),
         elevation = ButtonDefaults.buttonElevation(4.dp),
-        onClick = onStatsClick
+        onClick = { navController.navigate("summary") }
     ) {
         Text(
             fontSize = 16.sp,
@@ -292,6 +275,7 @@ fun StatsButton(onStatsClick: () -> Unit) {
 @Composable
 fun EditButton(onStatsClick: () -> Unit) {
     //
+
     OutlinedButton(
         modifier = Modifier.padding(16.dp),
         shape = RoundedCornerShape(16.dp),
@@ -308,30 +292,3 @@ fun EditButton(onStatsClick: () -> Unit) {
 }
 
 // **************************************************************************
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    WorkoutPageTheme {
-        Scaffold(
-            topBar = {
-                WorkoutTopBar { }
-            },
-            bottomBar = {
-                WorkoutBottomBar()
-            },
-        )
-        { innerPadding ->
-            Box(
-                modifier = Modifier.padding(innerPadding)
-            )
-            Column(
-                Modifier.safeContentPadding()
-            ) {
-                SharedContent()
-                WorkoutText(completeMessage = "xx Down", toGoMessage = "xx To Go")
-                WorkoutTiles()
-            }
-        }
-    }
-}

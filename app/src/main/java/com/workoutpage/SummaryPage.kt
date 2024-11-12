@@ -1,5 +1,8 @@
 package com.workoutpage
 
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -19,11 +22,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+class MainActivity2 : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            SummaryLayout(navController = rememberNavController())
+        }
+    }
+}
+
 @Composable
-fun SummaryLayout() {
+fun SummaryLayout(navController: NavController) {
     val date = Calendar.getInstance().time
     val formatter = SimpleDateFormat.getDateInstance()
     val formattedDate = formatter.format(date)
