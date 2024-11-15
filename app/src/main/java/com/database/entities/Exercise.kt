@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 data class Exercise(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val equipmentType: String,
     val targetMuscleGroup: String,
     val difficultyLevel: String,
     val createdAt: Long = System.currentTimeMillis(),
