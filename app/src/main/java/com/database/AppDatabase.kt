@@ -3,6 +3,7 @@ package com.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
+import com.database.dao.ExerciseDao
 import com.database.dao.UserDao
 import com.database.dao.ProfileDao
 import com.database.dao.WorkoutDao
@@ -29,4 +30,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun profileDao(): ProfileDao
     abstract fun workoutDao(): WorkoutDao
+    abstract fun exerciseDao(): ExerciseDao
 }
