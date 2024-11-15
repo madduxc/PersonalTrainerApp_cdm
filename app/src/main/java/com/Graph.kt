@@ -1,6 +1,7 @@
 package com
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -38,18 +39,24 @@ object Graph {
     // create an instance of the sqlite room app database
     // should be called from the application class on startup
     fun provide(context: Context){
+        Log.d("Graph", "initializing database")
         database = Room.databaseBuilder(context, AppDatabase::class.java, "personal-trainer.db")
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
-
+                    Log.d("Graph", "Database created")
                     // Coroutine inserts the exercises in the background thread, without blocking the main thread
                     ioScope.launch {
+                        Log.d("Graph", "inserting exercises")
                         database.exerciseDao().insertAll(predefinedExercises)
                     }
                 }
             })
             .build()
+        Log.d("Graph", "database initialized")
+        // dummy query
+        // Room does not call callbacks until the database is accessed
+        database.query("select 1", null)
     }
 
     val predefinedExercises = listOf(
