@@ -8,7 +8,7 @@ import com.database.entities.WorkoutSet
 @Dao
 interface WorkoutDao {
 
-    // Insert a new workout for a user
+    // Start a new workout for a user
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun startWorkout(workout: Workout): Long
 
@@ -20,14 +20,21 @@ interface WorkoutDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun logSet(set: WorkoutSet): Long
 
-    // Retrieve workout exercises by workout ID (to display during a workout)
+    // Retrieve workout exercises by workout ID
     @Transaction
     @Query("""
         SELECT * FROM WorkoutExercise
-        INNER JOIN Exercise ON WorkoutExercise.exerciseId = Exercise.id
         WHERE WorkoutExercise.workoutId = :workoutId
     """)
     suspend fun getExercisesForWorkout(workoutId: Int): List<WorkoutExercise>
+
+    // Update an existing WorkoutSet
+    @Update
+    suspend fun updateSet(set: WorkoutSet)
+
+    // Delete a WorkoutSet
+    @Delete
+    suspend fun deleteSet(set: WorkoutSet)
 
     // Retrieve sets for a workout exercise
     @Query("SELECT * FROM WorkoutSet WHERE workoutExerciseId = :workoutExerciseId")

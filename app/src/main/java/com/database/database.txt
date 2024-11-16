@@ -1,0 +1,26 @@
+Application User flow
+
+1. Create User
+    User = registerUser(firstName, lastName, email, password, avatar?)
+2. Create Profile from Survey Results
+    Profile = createProfile(User.id, bodyType, fitnessLevel, fitnessGoals)
+3. Create FitnessPlan from Survey Results
+    FitnessPlan = createFitnessPlan(User.id, name)
+4. Add Exercises to User's FitnessPlan ( fitnessPlanExercises = Exercises joined to FitnessPlan)
+    insertFitnessPlanExercise(FitnessPlan.id, Exercise.id)
+    OR
+    insertExercisesToFitnessPlan(FitnessPlan.id, [List of Exercises])
+5. Start a workout using fitness plan
+    1. Find User's Fitness plans
+        [List of User's Plans] = getFitnessPlansByUserId(User.id)
+    2. Choose a plan and Create a new Workout entry
+        FitnessPlan from [List of User's Plans]
+        Workout = startWorkout(User.id, FitnessPlan.id, date)
+    3. Get list of exercises from Fitness plan exercises
+        [List of FitnessPlanExercises] = getExercisesByFitnessPlan(FitnessPlan.id)
+    3. Add FitnessPlanExercises to Workout ( Create WorkoutExercises )
+        createWorkoutExercisesFromFitnessPlan(Workout.id, [List of FitnessPlanExercises])
+    4. Get list of workout exercises from workout
+        [List of WorkoutExercises] = getWorkoutExercisesForWorkout(Workout.id)
+    5. Log a set of a workout exercise, creates a set entry
+        logSet(WorkoutExercise.id, reps, weight, time, intensity)

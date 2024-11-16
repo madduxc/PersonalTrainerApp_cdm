@@ -4,6 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 import com.database.dao.ExerciseDao
+import com.database.dao.FitnessPlanDao
+import com.database.dao.FitnessPlanExerciseDao
 import com.database.dao.UserDao
 import com.database.dao.ProfileDao
 import com.database.dao.WorkoutDao
@@ -31,4 +33,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao
     abstract fun workoutDao(): WorkoutDao
     abstract fun exerciseDao(): ExerciseDao
+    abstract fun fitnessPlanDao(): FitnessPlanDao
+    abstract fun fitnessPlanExerciseDao(): FitnessPlanExerciseDao
 }

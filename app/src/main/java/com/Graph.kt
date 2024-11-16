@@ -7,6 +7,9 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.database.AppDatabase
 import com.database.entities.Exercise
+import com.database.repositories.ExerciseRepository
+import com.database.repositories.FitnessPlanExerciseRepository
+import com.database.repositories.FitnessPlanRepository
 import com.database.repositories.ProfileRepository
 import com.database.repositories.UserRepository
 import com.database.repositories.WorkoutRepository
@@ -30,6 +33,18 @@ object Graph {
 
     val workoutRepository by lazy{
         WorkoutRepository(workoutDao = database.workoutDao())
+    }
+
+    val exerciseRepository by lazy{
+        ExerciseRepository(exerciseDao = database.exerciseDao())
+    }
+
+    val fitnessPlanRepository by lazy{
+        FitnessPlanRepository(fitnessPlanDao = database.fitnessPlanDao())
+    }
+
+    val fitnessPlanExerciseRepository by lazy{
+        FitnessPlanExerciseRepository(fitnessPlanExerciseDao = database.fitnessPlanExerciseDao())
     }
 
     // Coroutine scope for background operations

@@ -1,29 +1,27 @@
 package com.database.repositories
 
 import com.database.dao.ProfileDao
-import com.database.entities.FitnessPlan
-import com.database.entities.FitnessPlanExercise
 import com.database.entities.Profile
 
-class ProfileRepository(
-    private val profileDao: ProfileDao,
-) {
+class ProfileRepository(private val profileDao: ProfileDao) {
 
-    suspend fun createProfile(profile: Profile): Long {
-        return profileDao.createProfile(profile)
+    // Create or update a profile
+    suspend fun createProfile(profile: Profile) {
+        profileDao.createProfile(profile)
     }
 
-    suspend fun createFitnessPlan(fitnessPlan: FitnessPlan): Long {
-        return profileDao.createFitnessPlan(fitnessPlan)
+    // Get a user's profile by user ID
+    suspend fun getUserProfile(userId: Int): Profile? {
+        return profileDao.getUserProfile(userId)
     }
 
-    suspend fun addExerciseToFitnessPlan(fitnessPlanId: Int, exerciseId: Int) {
-        profileDao.addSingleExerciseToFitnessPlan(
-            FitnessPlanExercise(fitnessPlanId = fitnessPlanId, exerciseId = exerciseId)
-        )
+    // Update a profile
+    suspend fun updateProfile(profile: Profile) {
+        profileDao.updateProfile(profile)
     }
 
-    suspend fun removeExerciseFromFitnessPlan(fitnessPlanId: Int, exerciseId: Int) {
-        profileDao.deleteExerciseFromFitnessPlan(fitnessPlanId, exerciseId)
+    // Delete a profile
+    suspend fun deleteProfile(profile: Profile) {
+        profileDao.deleteProfile(profile)
     }
 }

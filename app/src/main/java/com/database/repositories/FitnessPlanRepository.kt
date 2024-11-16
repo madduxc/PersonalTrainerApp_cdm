@@ -6,7 +6,7 @@ import com.database.entities.FitnessPlan
 class FitnessPlanRepository(private val fitnessPlanDao: FitnessPlanDao) {
 
     // Insert a new fitness plan
-    suspend fun insertFitnessPlan(fitnessPlan: FitnessPlan): Long {
+    suspend fun createFitnessPlan(fitnessPlan: FitnessPlan): Long {
         return fitnessPlanDao.insertFitnessPlan(fitnessPlan)
     }
 
