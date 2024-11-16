@@ -9,6 +9,8 @@ data class Exercise(
     val name: String,
     val targetMuscleGroup: String,
     val difficultyLevel: String,
+    val numberOfSets: Int, // default number of sets and reps to be displayed in the UI
+    val numberOfReps: Int,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
