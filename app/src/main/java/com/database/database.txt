@@ -24,19 +24,19 @@ Application Work Flow
 4. Add Exercises to User's FitnessPlan ( fitnessPlanExercises = Exercises joined to FitnessPlan)
     insertFitnessPlanExercise(FitnessPlan_id, Exercise_id)
     OR
-    insertExercisesToFitnessPlan(FitnessPlan.id, [List of Exercises])
+    insertExercisesToFitnessPlan(FitnessPlan_id, [List of Exercises])
 5. Start a workout using fitness plan
     1. Find User's Fitness plans
-        [List of User's Plans] = getFitnessPlansByUserId(User.id)
+        [List of User's Plans] = getFitnessPlansByUserId(User_id)
     2. Choose a plan and Create a new Workout entry
         FitnessPlan from [List of User's Plans]
-        Workout = startWorkout(User_id, FitnessPlan.id, date)
+        Workout_id = startWorkout(User_id, FitnessPlan_id, date)
     3. Get list of exercises from Fitness plan exercises
-        [List of FitnessPlanExercises] = getExercisesByFitnessPlan(FitnessPlan.id)
+        [List of FitnessPlanExercises] = getExercisesByFitnessPlan(FitnessPlan_id)
     3. Add FitnessPlanExercises to Workout ( Create WorkoutExercises )
         createWorkoutExercisesFromFitnessPlan(Workout_id, [List of FitnessPlanExercises])
     4. Get list of workout exercises from workout
-        [List of WorkoutExercises] = getWorkoutExercisesForWorkout(Workout.id)
+        [List of WorkoutExercises] = getWorkoutExercisesForWorkout(Workout_id)
     5. Log a set of a workout exercise, creates a set entry
         logSet(WorkoutExercise_id, reps, weight, time, intensity)
 6. For stats/summary page
