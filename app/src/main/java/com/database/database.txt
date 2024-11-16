@@ -24,3 +24,4 @@ Application User flow
         [List of WorkoutExercises] = getWorkoutExercisesForWorkout(Workout.id)
     5. Log a set of a workout exercise, creates a set entry
         logSet(WorkoutExercise.id, reps, weight, time, intensity)
+6. For stats/summary page

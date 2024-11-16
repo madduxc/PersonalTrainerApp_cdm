@@ -39,4 +39,13 @@ interface WorkoutDao {
     // Retrieve sets for a workout exercise
     @Query("SELECT * FROM WorkoutSet WHERE workoutExerciseId = :workoutExerciseId")
     suspend fun getSetsForWorkoutExercise(workoutExerciseId: Int): List<WorkoutSet>
+
+    // Get all sets for a specific exercise by joining WorkoutSet and WorkoutExercise
+    @Transaction
+    @Query("""
+        SELECT * FROM WorkoutSet
+        INNER JOIN WorkoutExercise ON WorkoutSet.workoutExerciseId = WorkoutExercise.id
+        WHERE WorkoutExercise.exerciseId = :exerciseId
+    """)
+    suspend fun getAllSetsForExercise(exerciseId: Int): List<WorkoutSet>
 }

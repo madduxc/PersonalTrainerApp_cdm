@@ -52,5 +52,9 @@ class WorkoutRepository(private val workoutDao: WorkoutDao) {
         return workoutDao.getSetsForWorkoutExercise(workoutExerciseId)
     }
 
+    // Get all sets associated with a particular exercise
+    suspend fun getSetsForExercise(exerciseId: Int): List<WorkoutSet> {
+        return workoutDao.getAllSetsForExercise(exerciseId)
+    }
 
 }

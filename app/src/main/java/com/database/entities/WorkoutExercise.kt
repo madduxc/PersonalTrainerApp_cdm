@@ -26,6 +26,7 @@ data class WorkoutExercise(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val workoutId: Int,
     val exerciseId: Int,
+    val numberOfSets: Int,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
