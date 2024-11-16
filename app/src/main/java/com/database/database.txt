@@ -1,3 +1,18 @@
+The database is built using Android's Room SQLite Library.
+
+Access the database by importing the Graph object
+CRUD functionality is achieved through the repository functions
+The ViewModel layer is the most common and recommended place for interacting with repositories, but is not mandatory.
+
+Example:
+Accessing WorkoutRepository from Graph in an Activity or any other class
+val workoutRepository = Graph.workoutRepository
+Example: Fetch workouts
+CoroutineScope(Dispatchers.Main).launch {
+    val workouts = workoutRepository.getAllWorkouts()
+    // Do something with the workouts data
+}
+
 Application Work Flow
 
 1. Create User
@@ -26,16 +41,3 @@ Application Work Flow
         logSet(WorkoutExercise_id, reps, weight, time, intensity)
 6. For stats/summary page
     Use any of the get functions to get the necessary data
-
-Access the database by importing the Graph object
-CRUD functionality is achieved through the repository functions
-The ViewModel layer is the most common and recommended place for interacting with repositories, but is not mandatory.
-
-Example:
-Accessing WorkoutRepository from Graph in an Activity or any other class
-val workoutRepository = Graph.workoutRepository
-Example: Fetch workouts
-CoroutineScope(Dispatchers.Main).launch {
-    val workouts = workoutRepository.getAllWorkouts()
-    // Do something with the workouts data
-}
