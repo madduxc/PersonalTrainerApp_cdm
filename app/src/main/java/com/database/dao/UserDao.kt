@@ -13,8 +13,8 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registerUser(user: User): Long
 
-    // Get a user by email
-    @Query("SELECT * FROM User WHERE email = :email LIMIT 1")
+    // Get a user by email -- lower case INSENSITIVE
+    @Query("SELECT * FROM User WHERE LOWER(email) = LOWER(:email) LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
 
     // Optional: Get a user by ID
