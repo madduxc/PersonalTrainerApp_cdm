@@ -1,4 +1,4 @@
-package com.example.fitnesspage.ui.theme
+package com.example.fitnesspage.pages
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
