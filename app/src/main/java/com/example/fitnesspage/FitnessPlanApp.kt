@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.database.entities.Exercise
 import com.example.fitnesspage.pages.FitnessPlanPage
 import com.example.fitnesspage.pages.SurveyScreen
 import com.workoutpage.SummaryLayout
@@ -55,6 +56,15 @@ fun FitnessPlanApp(
             FitnessPlanPage(answers = answers, navController = navController)
         }
         composable(route = "workout") { WorkoutPage(navController)}
+        // Workout Page with displayedExercises -- CHARLES have the workout page accept the displayed exercises
+//        composable(
+//            route = "workout/{displayedExercisesJson}",
+//            arguments = listOf(navArgument("displayedExercisesJson") { type = NavType.StringType })
+//        ) { backStackEntry ->
+//            val displayedExercisesJson = backStackEntry.arguments?.getString("displayedExercisesJson") ?: "[]"
+//            val displayedExercises = Json.decodeFromString<List<Exercise>>(displayedExercisesJson)
+//            WorkoutPage(navController = navController, displayedExercises = displayedExercises)
+//        }
 
         composable(route = "summary") { SummaryLayout(navController) }
     }

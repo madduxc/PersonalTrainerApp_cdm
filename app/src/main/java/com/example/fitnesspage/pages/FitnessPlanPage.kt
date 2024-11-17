@@ -1,5 +1,6 @@
 package com.example.fitnesspage.pages
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,10 @@ import com.database.entities.Exercise
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+import kotlinx.serialization.encodeToString
+
+import kotlinx.serialization.json.Json
+
 // This composable displays information pulled from backend
 
 @Composable
@@ -53,12 +58,18 @@ fun FitnessPlanPage(
     var showWarningDialog by remember { mutableStateOf(false) }
 
     // States to store the queried exercises
+    // these are the exercises that are displayed in the UI
     val displayedExercises = remember { mutableStateOf<List<Exercise>>(emptyList()) }
+    // these are the exercises that are pulled from the database
     val allExercises = remember { mutableStateOf<List<Exercise>>(emptyList()) }
+    // this calls the queries without blocking the main thread
     val coroutineScope = rememberCoroutineScope()
 
     // Query exercises when the page loads
+    // this ensures that the code runs once
     LaunchedEffect(Unit) {
+        // runs the queries
+        // answers are the responses from survey,
         fetchExercises(answers, displayedExercises, coroutineScope)
         coroutineScope.launch {
             allExercises.value = Graph.database.exerciseDao().getAllExercises() // Fetch all exercises
@@ -71,16 +82,20 @@ fun FitnessPlanPage(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text("Fitness Plan Recommendations", style = MaterialTheme.typography.headlineMedium)
-        Text("Here's a list of 6 exercises based on your selections. Feel free to remove or add more exercises!")
-        // Exercise List with weight to allow space for buttons
+        Text("Here's a list of up to 6 exercises based on your selections. Feel free to remove or add more exercises!")
+        // Lazy column allows for a list view that conserves space
+        // I used this so the "ADD" and "Navigation" buttons fit
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
+            // For each exercise in the displaysExercise list, call the ExerciseItem Card
             items(displayedExercises.value) { exercise ->
                 ExerciseItem(
+                    // the exercise to be displayed
                     exercise = exercise,
+                    // On click, remove this exercise from being displayed - i.e. doesn't remove the exercise in the backend
                     onRemoveExercise = { removeExercise(it, displayedExercises) }
                 )
             }
@@ -88,21 +103,30 @@ fun FitnessPlanPage(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Add Exercise Button
+        // Add Exercise Button -- this displays at the bottom
         AddExerciseButton(
+            // this allows for all exercises in database to be selectable options for users
             exercises = allExercises.value,
+            // on selection
             onAddExercise = { selectedExercise ->
-                // Add selected exercise to displayed list
+                // Add selected exercise to displayed list if its not already there
                 if (!displayedExercises.value.contains(selectedExercise)) {
+                    // Note we have to create a new list, with the same name, as this ensures that
+                    // the MutableState updates which triggers a recomposition of the UI.
                     displayedExercises.value = displayedExercises.value + selectedExercise
                 }
             }
         )
 
-
+        // navigation buttons
         NavigationButtons(
+            // triggers the showWarningDialog flag
             onBackToSurveyClick = { showWarningDialog = true },
-            onStartWorkoutClick = { navController.navigate("workout") }
+            // navigates to workout page
+            onStartWorkoutClick = {
+                val displayedExercisesJson = Uri.encode(Json.encodeToString(displayedExercises.value))
+                navController.navigate("workout/$displayedExercisesJson")
+            }
         )
 }
             // This shows the warning dialog if the user presses the "Back to Survey" button
@@ -144,7 +168,7 @@ fun FitnessPlanPage(
 
 
 
-
+// navigation buttons
 @Composable
 fun NavigationButtons(
     onBackToSurveyClick: () -> Unit,
@@ -165,10 +189,11 @@ fun NavigationButtons(
 
 @Composable
 fun AddExerciseButton(
-    exercises: List<Exercise>, // Pass the list of all exercises
+    exercises: List<Exercise>, // Pass the list of all exercises, i.e. allExercises above
     onAddExercise: (Exercise) -> Unit // Callback when an exercise is added
 ) {
-    var showDialog by remember { mutableStateOf(false) } // Track dialog visibility
+    // flag to show list of exercises
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -196,7 +221,8 @@ fun AddExerciseButton(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        onAddExercise(exercise) // Add exercise when clicked
+                                        // Adds exercise to displayedExercises list when clicked
+                                        onAddExercise(exercise)
                                         showDialog = false // Close dialog
                                     }
                                     .padding(8.dp),
@@ -222,7 +248,7 @@ fun AddExerciseButton(
 }
 
 
-
+// Exercise Card
 @Composable
 fun ExerciseItem(
     exercise: Exercise,
@@ -233,19 +259,20 @@ fun ExerciseItem(
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
-            .clickable { /* Optionally handle item clicks */ }
+            .clickable { }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
             Text(
+                // displays name of exercise
                 text = exercise.name,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-
+// Trashcan Icon which when clicked calls the remove exercise function below
         IconButton(onClick = { onRemoveExercise(exercise) }) {
             Icon(
                 imageVector = Icons.Default.Delete,
@@ -262,30 +289,49 @@ private fun fetchExercises(
     exercises: MutableState<List<Exercise>>,
     coroutineScope: CoroutineScope
 ) {
+    // uses the responses from survey to query the database
     coroutineScope.launch {
+        // variables that hold that responses from survey
         val muscleGroup = answers["id3"]?.firstOrNull() ?: ""
         val difficultyLevel = answers["id2"]?.firstOrNull() ?: ""
         val goal = answers["id1"]?.firstOrNull() ?: ""
-
+        // variable to hold the response back from database
         val allExercises = when (goal) {
+            // if goal is cardio, pass in the goal for the targeted muscle group
             "CARDIO" -> {
-                Graph.database.exerciseDao().getExercisesByCriteria(goal, difficultyLevel)
+//                Graph.database.exerciseDao().getExercisesByCriteria(goal, difficultyLevel)
+                Graph.exerciseRepository.getExercisesByTargetMuscleAndDifficulty(goal, difficultyLevel)
             }
+            // if the goal is flexibility, pass in only the goal for the target muscle group
             "FLEXIBILITY" -> {
-                Graph.database.exerciseDao().getExercisesByCriteria(goal, "ALL")
+//                Graph.database.exerciseDao().getExercisesByCriteria(goal, "ALL")
+                // returns all flexibility exercises
+                Graph.exerciseRepository.getExercisesByTargetMuscleGroup(goal)
             }
+            // else user wants to build strength
             else -> {
-                Graph.database.exerciseDao().getExercisesByCriteria(muscleGroup, difficultyLevel)
+                // if their at "advance" level, they can use all exercises
+                if (difficultyLevel == "ADVANCE") {
+                    Graph.exerciseRepository.getExercisesByTargetMuscleGroup(muscleGroup)
+                } else {
+                    // else only select exercises at their targeted fitness level
+                Graph.exerciseRepository.getExercisesByTargetMuscleAndDifficulty(muscleGroup, difficultyLevel)}
             }
         }
+        // a randomized list of up to 6 exercises
         exercises.value = allExercises.shuffled().take(6)
     }
 }
 
 private fun removeExercise(
+    // This is the exercise to be removed
     exercise: Exercise,
+    // This holds the argument of the mutable list of exercises that was passed in
+    // -i.e., displayedExercises which triggers recomposition when updated
     exercises: MutableState<List<Exercise>>
 ) {
+    // This creates a new list that includes only the exercises that are not equal to the removed exercise
+    // I.E., filter just iterates over all elements in the list and applies the condition: "it != exercise"
     exercises.value = exercises.value.filter { it != exercise }
 }
 

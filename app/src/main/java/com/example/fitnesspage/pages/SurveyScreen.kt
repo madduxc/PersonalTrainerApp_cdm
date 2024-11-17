@@ -48,7 +48,7 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
             questionType = QuestionType.SINGLE_CHOICE,
             questionId = "id2",
             questionTitle = "2) What is your fitness level?:",
-            answers = listOf("Novice/Beginner", "Intermediate", "Advanced"),
+            answers = listOf("Novice/Beginner", "Intermediate", "Advance"),
         ),
         SurveyModel(
             questionType = QuestionType.SINGLE_CHOICE,
@@ -67,7 +67,7 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
         "id2" to mapOf(
             "Novice/Beginner" to "BEGINNER",
             "Intermediate" to "INTERMEDIATE",
-            "Advanced" to "ADVANCED"
+            "Advance" to "ADVANCE"
         ),
         "id3" to mapOf(
             "Upper-body" to "UPPER",
