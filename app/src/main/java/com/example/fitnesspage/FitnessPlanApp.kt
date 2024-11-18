@@ -3,18 +3,16 @@ package com.example.fitnesspage
 import android.net.Uri
 import androidx.compose.runtime.Composable
 
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 //import com.example.fitnesspage.ui.theme.SurveyScreen
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.fitnesspage.ui.theme.FitnessPlanPage
-import com.example.fitnesspage.ui.theme.SurveyScreen
+import com.database.entities.Exercise
+import com.example.fitnesspage.pages.FitnessPlanPage
+import com.example.fitnesspage.pages.SurveyScreen
 import com.workoutpage.SummaryLayout
 import com.workoutpage.WorkoutPage
 import kotlinx.serialization.json.Json
@@ -47,10 +45,7 @@ fun FitnessPlanApp(
             SurveyScreen{ answers ->
                 val answersJson = Uri.encode(Json.encodeToString(answers))
                 navController.navigate("fitnessPlan/$answersJson")
-
             }
-
-//            SurveyView()
         }
         composable(
             "fitnessPlan/{answersJson}",
@@ -61,6 +56,15 @@ fun FitnessPlanApp(
             FitnessPlanPage(answers = answers, navController = navController)
         }
         composable(route = "workout") { WorkoutPage(navController)}
+        // Workout Page with displayedExercises -- CHARLES have the workout page accept the displayed exercises
+//        composable(
+//            route = "workout/{displayedExercisesJson}",
+//            arguments = listOf(navArgument("displayedExercisesJson") { type = NavType.StringType })
+//        ) { backStackEntry ->
+//            val displayedExercisesJson = backStackEntry.arguments?.getString("displayedExercisesJson") ?: "[]"
+//            val displayedExercises = Json.decodeFromString<List<Exercise>>(displayedExercisesJson)
+//            WorkoutPage(navController = navController, displayedExercises = displayedExercises)
+//        }
 
         composable(route = "summary") { SummaryLayout(navController) }
     }
