@@ -11,11 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -23,20 +31,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+/** ExerciseCard - create the body of the the card
+ *      Inputs: navController & TileData
+ *      set up the structure of the card
+ *      set up scrolling
+ *      fill in the values
+ */
 @Composable
 fun ExerciseCard(navController: NavController, data: TileData) {
-
+    // outer container - the padding makes the card fit well
     Surface(
         modifier = Modifier.padding(4.dp)
     ) {
+        // inner container - for proper placement of the contents
         Box(
             modifier = Modifier.fillMaxSize()
                 .background(color = Color.hsv(200f, 0.3f, 0.99f))
@@ -48,30 +63,40 @@ fun ExerciseCard(navController: NavController, data: TileData) {
                     shape = RoundedCornerShape(8.dp)
                 )
         ) {
+            // set up the scroll state
+            val scrollState = rememberScrollState()
+
+            // make larger lists scrollable
             Column(
                 modifier = Modifier.fillMaxWidth()
+                    .verticalScroll(scrollState)
             ) {
+                // generate a summary
                 ExerciseText(data)
 
+                // create the individual input fields & handle data
                 ExerciseInputs(data)
 
-                // navigate back to the Home screen
+                // navigate back to the Workout page
                 CloseButton(navController)
             }
         }
     }
 }
 
+/** ExerciseText - offer encouragement and summarize the exercise
+ *      identify the exercise
+ *      outline the exercise goal
+ */
 @Composable
 fun ExerciseText(data: TileData) {
-    // all of this needs to be dynamically filled and sized
     Text(
         text = "Let's Do This!",
         modifier = Modifier.padding(20.dp, 8.dp),
         fontSize = 36.sp
     )
     Text(
-        text = data.title, // "Leg Press Goal:",
+        text = data.title,
         modifier = Modifier.padding(8.dp, 4.dp),
         fontSize = 28.sp
     )
@@ -82,78 +107,137 @@ fun ExerciseText(data: TileData) {
     )
 }
 
+/** ExerciseInputs - show text fields, gather input data, and store it
+ *      create lists for data storage
+ *      display input fields for each rep
+ *      save the data to the list
+ *      temp - display the data to the screen
+ *      TODO: send back to the database
+ */
 @Composable
 fun ExerciseInputs(data: TileData) {
-    //
     // Generated logic using chatGPT
     // List of MutableState for each TextField
     val repsFieldStates = remember { MutableList(data.sets) { mutableStateOf("") } }
     val weightFieldState = remember { MutableList(data.sets) { mutableStateOf("") } }
+
     // List to store saved inputs
     val savedInputReps = remember { mutableStateListOf<Int>() }
-    val savedInputWeights = remember { mutableStateListOf<Int>() }
+    val savedInputWeights = remember { mutableStateListOf<Double>() }
 
+    // list for each input field
     for (set in 1 .. data.sets) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Set $set: ",
-                modifier = Modifier.padding(8.dp, 4.dp),
-                fontSize = 28.sp,
+        Column {
+            Row(
+                modifier = Modifier.align(Alignment.Start)
             )
-            TextField(
-
-                value = repsFieldStates[set - 1].value,
-                onValueChange = {
-                    repsFieldStates[set - 1].value = it
-                },
-                modifier = Modifier.width(44.dp)
-                    .height(28.dp)
-                    .padding(8.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
+            {
+                // state the set number
+                Text(
+                    text = "Set $set:",
+                    modifier = Modifier.padding(4.dp, 4.dp),
+                    fontSize = 24.sp,
                 )
-            )
-            Text(
-                text = " reps  ",
-                modifier = Modifier.padding(0.dp, 8.dp),
-                fontSize = 20.sp,
-            )
-            TextField(
-
-                value = weightFieldState[set - 1].value,
-                onValueChange = {
-                    weightFieldState[set - 1].value = it
-                },
-                modifier = Modifier.width(44.dp)
-                    .height(28.dp)
-                    .padding(8.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-            Text(
-                text = " lbs ",
-                modifier = Modifier.padding(0.dp, 8.dp),
-                fontSize = 20.sp,
-            )
-            Button(
-                modifier = Modifier.padding(4.dp, 0.dp),
-                onClick = {
-                    // Save current inputs to the savedInputs list
-                    savedInputReps.clear()
-                    savedInputReps.addAll(repsFieldStates.map { it.value.toIntOrNull() ?: 0 })
-                    savedInputWeights.clear()
-                    savedInputWeights.addAll(weightFieldState.map { it.value.toIntOrNull() ?: 0 })
-                },
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Save")
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+                // gather the number of reps done
+                // use number pad to gather integers only
+                TextField(
+
+                    value = repsFieldStates[set - 1].value,
+                    onValueChange = {
+                        repsFieldStates[set - 1].value = it
+                    },
+                    modifier = Modifier.width(48.dp)
+                        .height(28.dp)
+                        .padding(12.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Text(
+                    text = " reps  ",
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    fontSize = 20.sp,
+                )
+                // gather the weight used
+                // use number pad to gather integers/doubles only
+                TextField(
+
+                    value = weightFieldState[set - 1].value,
+                    onValueChange = {
+                        weightFieldState[set - 1].value = it
+                    },
+                    modifier = Modifier.width(52.dp)
+                        .height(32.dp)
+                        .padding(4.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Text(
+                    text = " lbs ",
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    fontSize = 20.sp,
+                )
+                // create a save button for this input
+                FilledIconButton(
+                    modifier = Modifier.padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Save current inputs to the savedInputs list
+                        savedInputReps.clear()
+                        savedInputReps.addAll(repsFieldStates.map { it.value.toIntOrNull() ?: 0 })
+                        savedInputWeights.clear()
+                        savedInputWeights.addAll(weightFieldState.map { it.value.toDoubleOrNull() ?: 0.0 })
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "checkmark"
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.width(20.dp)
+                )
+                // create an edit button for this input
+                FilledIconButton(
+                    modifier = Modifier.padding(4.dp, 0.dp)
+                        .size(28.dp),
+                    onClick = {
+                        /*
+                        // savedInputReps.clear()
+                        if (repsFieldStates.isNotEmpty())
+                        {
+                            repsFieldStates.removeLast()
+                        //repsFieldStates.map { it.value.toIntOrNull() ?: 0 })
+                        }
+                        else {
+                            // do nothing
+                        }
+                        // savedInputWeights.clear()
+                        if (weightFieldState.isNotEmpty())
+                        {
+                            weightFieldState.removeLast()
+                            // savedInputWeights.addAll(weightFieldState.map { it.value.toDoubleOrNull() ?: 0.0 })
+                        }
+                        else {
+                            // do nothing
+                        }*/
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "edit"
+                    )
+                }
             }
         }
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
     }
     // testing only
     savedInputReps.forEachIndexed { index, input ->
@@ -171,7 +255,16 @@ fun CloseButton (navController: NavController) {
         modifier = Modifier.fillMaxWidth()
             .padding(4.dp, 8.dp)
     ) {
-        //
+        Spacer(
+            Modifier.width(40.dp)
+        )
+        Button(
+            modifier = Modifier.padding(4.dp),
+            elevation = ButtonDefaults.buttonElevation(8.dp),
+            onClick = {  }
+        ) {
+            Text(text = "Save All")
+        }
         Spacer(
             Modifier.width(40.dp)
         )
@@ -191,35 +284,3 @@ fun CloseButton (navController: NavController) {
 }
 
 // **************************************************************************
-
-@Preview(showBackground = true)
-@Composable
-fun ExercisePreview() {
-
-    Surface(
-        modifier = Modifier.padding(4.dp)
-    ) {
-        //
-        Box(
-            modifier = Modifier.fillMaxSize()
-                .background(color = Color.hsv(200f, 0.3f, 0.99f))
-                .border(
-                    border = BorderStroke(
-                        4.dp,
-                        color = Color.Gray
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                )
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                ExerciseText(TileData("Leg Press", 80, 3, 12))
-
-                // for (i in 1 .. sets) {
-                //     TextField(i)
-                // }
-            }
-        }
-    }
-}

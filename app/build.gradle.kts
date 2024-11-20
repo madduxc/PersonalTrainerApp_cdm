@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("plugin.serialization") version "1.9.0"
     id("kotlin-kapt")
     alias(libs.plugins.compose.compiler)
 }
