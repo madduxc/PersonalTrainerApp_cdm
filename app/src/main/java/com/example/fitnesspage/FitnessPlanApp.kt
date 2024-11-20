@@ -1,6 +1,7 @@
 package com.example.fitnesspage
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Composable
 
 import androidx.navigation.compose.NavHost
@@ -37,7 +38,7 @@ fun FitnessPlanApp(
     // retrieves the current state from the view model
     // collectAsState() collects the latest value from the state flow and converts it into a State object
     // the returned value (i.e. uiState.value) from this is then assigned to uiState with "by"
-//    val uiState by viewModel.uiState.collectAsState()
+    //    val uiState by viewModel.uiState.collectAsState()
     // NavHost defines the navigation path for the app
     // sets startDestination to survey page -- needs to be changed
     NavHost(navController = navController, startDestination = "survey" ){
@@ -55,16 +56,15 @@ fun FitnessPlanApp(
             val answers = Json.decodeFromString<Map<String, Set<String>>>(answersJson)
             FitnessPlanPage(answers = answers, navController = navController)
         }
-        composable(route = "workout") { WorkoutPage(navController)}
-        // Workout Page with displayedExercises -- CHARLES have the workout page accept the displayed exercises
-//        composable(
-//            route = "workout/{displayedExercisesJson}",
-//            arguments = listOf(navArgument("displayedExercisesJson") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val displayedExercisesJson = backStackEntry.arguments?.getString("displayedExercisesJson") ?: "[]"
-//            val displayedExercises = Json.decodeFromString<List<Exercise>>(displayedExercisesJson)
-//            WorkoutPage(navController = navController, displayedExercises = displayedExercises)
-//        }
+        // Workout Page with displayedExercises
+        composable(
+            route = "workout/{displayedExercisesJson}",
+            arguments = listOf(navArgument("displayedExercisesJson") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val displayedExercisesJson = backStackEntry.arguments?.getString("displayedExercisesJson") ?: "[]"
+            val displayedExercises = Json.decodeFromString<List<Exercise>>(displayedExercisesJson)
+            WorkoutPage(navController = navController, displayedExercises = displayedExercises)
+        }
 
         composable(route = "summary") { SummaryLayout(navController) }
     }

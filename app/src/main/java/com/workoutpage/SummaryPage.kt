@@ -44,11 +44,11 @@ fun SummaryLayout(navController: NavController) {
 
     // Sample exercise data
     val exercises = listOf(
-        TileData(title = "Leg", weight = 120, sets = 2, reps = 10),
-        TileData(title = "Squat", weight = 150, sets = 3, reps = 10),
-        TileData(title = "Chest", weight = 40, sets = 5, reps = 11),
-        TileData(title = "Bicep", weight = 50, sets = 3, reps = 10),
-        TileData(title = "Pull", weight = 50, sets = 3, reps = 10),
+        TileData(title = "Leg", weight = 120.0, sets = 2, reps = 10),
+        TileData(title = "Squat", weight = 150.0, sets = 3, reps = 10),
+        TileData(title = "Chest", weight = 40.0, sets = 5, reps = 11),
+        TileData(title = "Bicep", weight = 50.0, sets = 3, reps = 10),
+        TileData(title = "Pull", weight = 50.0, sets = 3, reps = 10),
     )
 
     Column(modifier = Modifier.padding(8.dp)) {
