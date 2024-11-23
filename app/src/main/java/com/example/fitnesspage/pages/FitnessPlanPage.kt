@@ -33,6 +33,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.Graph
@@ -78,11 +82,17 @@ fun FitnessPlanPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(color = 0xFFF5F5F5)) // Set cream background color
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("Fitness Plan Recommendations", style = MaterialTheme.typography.headlineMedium)
-        Text("Here's a list of up to 6 exercises based on your selections. Feel free to remove or add more exercises!")
+        Text("Your Fitness Plan",
+            style = MaterialTheme.typography.headlineMedium,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Bold,)
+        Text("Here's a list of up to 6 exercises based on your selections. Feel free to remove or add more exercises!",
+            fontFamily = FontFamily.SansSerif,
+            )
         // Lazy column allows for a list view that conserves space
         // I used this so the "ADD" and "Navigation" buttons fit
         LazyColumn(
@@ -179,10 +189,10 @@ fun NavigationButtons(
         modifier = Modifier.fillMaxWidth()
     ) {
         Button(onClick = onBackToSurveyClick) {
-            Text("Back to Survey")
+            Text("Back to Survey",fontFamily = FontFamily.SansSerif,)
         }
         Button(onClick = onStartWorkoutClick) {
-            Text("Start Workout")
+            Text("Start Workout",fontFamily = FontFamily.SansSerif,)
         }
     }
 }
@@ -206,14 +216,14 @@ fun AddExerciseButton(
             onClick = { showDialog = true },
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
-            Text("Add Exercise")
+            Text("Add Exercise",fontFamily = FontFamily.SansSerif,)
         }
 
         // Dialog to display all exercises
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text("Add an Exercise") },
+                title = { Text("Add an Exercise",fontFamily = FontFamily.SansSerif,) },
                 text = {
                     LazyColumn {
                         items(exercises) { exercise ->
@@ -239,7 +249,7 @@ fun AddExerciseButton(
                 },
                 confirmButton = {
                     Button(onClick = { showDialog = false }) {
-                        Text("Close")
+                        Text("Close",fontFamily = FontFamily.SansSerif,)
                     }
                 }
             )
@@ -260,6 +270,8 @@ fun ExerciseItem(
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
             .clickable { }
+            .shadow(1.dp)
+//            .background(Color(color = 0xFFFFFAF1))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -269,7 +281,9 @@ fun ExerciseItem(
                 // displays name of exercise
                 text = exercise.name,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                fontFamily = FontFamily.SansSerif,
+
             )
         }
 // Trashcan Icon which when clicked calls the remove exercise function below

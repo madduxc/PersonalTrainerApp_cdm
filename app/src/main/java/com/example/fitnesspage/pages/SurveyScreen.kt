@@ -19,6 +19,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.RadioButton
@@ -26,7 +28,11 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 
 import com.example.fitnesspage.model.QuestionType
@@ -41,19 +47,19 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
         SurveyModel(
             questionType = QuestionType.SINGLE_CHOICE,
             questionId = "id1",
-            questionTitle = "1) What is your primary fitness goal:",
+            questionTitle = "What is your primary fitness goal?",
             answers = listOf("Build strength and muscle mass", "Lose weight", "Improve flexibility"),
         ),
         SurveyModel(
             questionType = QuestionType.SINGLE_CHOICE,
             questionId = "id2",
-            questionTitle = "2) What is your fitness level?:",
+            questionTitle = "What is your fitness level?",
             answers = listOf("Novice/Beginner", "Intermediate", "Advance"),
         ),
         SurveyModel(
             questionType = QuestionType.SINGLE_CHOICE,
             questionId = "id3",
-            questionTitle = "3) What is your targeted muscle group?:",
+            questionTitle = "What is your targeted muscle group?",
             answers = listOf("Upper-body", "Lower-body", "Full-body"),
         )
     )
@@ -81,12 +87,15 @@ fun SurveyView(onFinishSurvey: (Map<String,Set<String>>) -> Unit) {
         backgroundColor = Color.White,
         singleOptionUI = SingleOptionUI(
             questionTitle = SurveyText(
-                color = Color.DarkGray,
-                fontWeight = FontWeight.ExtraBold
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.SansSerif,
+
             ),
             answer = SurveyText(
-                color = Color.DarkGray,
-                fontWeight = FontWeight.Medium
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif,
             ),
             selectedColor = Color.White,
             unSelectedColor = Color.Gray,
@@ -117,7 +126,10 @@ fun SurveyScreen2(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
+//            .background(backgroundColor)
+            .background(Color(color = 0xFFF5F5F5))
+
+            .clip(RoundedCornerShape(12.dp)) // Add rounded corners
             .padding(16.dp)
     ) {
         items(survey.size) { index ->
@@ -167,17 +179,24 @@ fun SingleChoiceQuestion(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+
+            .shadow(1.dp)
+            .padding(2.dp),
+
     ) {
         Column(modifier = Modifier
             .fillMaxWidth()
+            .background(color = Color.White)
             .padding(16.dp)) {
             Text(
                 text = question.questionTitle,
+                fontWeight = FontWeight.Bold
+
             )
         }
 
-        Spacer(modifier = Modifier.padding(vertical = 4.dp))
+        Spacer(modifier = Modifier.padding(vertical = 1.dp)
+            )
 
         question.answers.forEach { answer ->
             Row(
@@ -189,7 +208,8 @@ fun SingleChoiceQuestion(
                     .background(
                         color = if (answer == selectedAnswer) Color.Gray else Color.White
                     )
-                    .padding(8.dp),
+                    .padding(4.dp),
+
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
@@ -198,13 +218,14 @@ fun SingleChoiceQuestion(
                         unselectedColor = singleOptionUI.unSelectedColor),
                     selected = answer == selectedAnswer,
                     onClick = null,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+
                 )
                 Text(
                     text = answer,
                 )
             }
-            Spacer(modifier = Modifier.padding(vertical = 2.dp))
+            Spacer(modifier = Modifier.padding(vertical = 1.dp))
         }
     }
 }
@@ -215,10 +236,28 @@ fun SurveyScreen(
     modifier: Modifier = Modifier,
     onSurveyFinished: (Map<String, Set<String>>) -> Unit // Add a parameter to handle survey answers
 ) {
-    Card(modifier = modifier) {
-        Column {
-            Text(text = "Fitness Survey", style = MaterialTheme.typography.headlineMedium)
-//            Text(text = "Tell us your goals for exercising?", style = MaterialTheme.typography.bodyLarge)
+    Card(modifier = modifier
+        .fillMaxSize()
+
+
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize() // Column takes up full size within the Card
+                .background(Color(color = 0xFFF5F5F5)) // Set cream background color
+                .padding(12.dp) // Add padding inside the Column
+
+
+        ) {
+            Text(
+                text = "Let's start with a quick survey!",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = FontFamily.SansSerif,
+
+
+            )
             // Pass the callback to SurveyView
             SurveyView(onFinishSurvey = onSurveyFinished)
         }
