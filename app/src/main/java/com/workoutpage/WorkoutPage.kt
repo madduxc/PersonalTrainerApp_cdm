@@ -41,12 +41,14 @@ import java.util.Calendar
 // **********************************************************************************
 
 // represents tile data
-@Serializable
+// @Serializable
 data class TileData(
-    val title: String,
+    val name: String,
     val weight: Double,
     val sets: Int,
-    val reps: Int
+    val reps: Int,
+    val time: Int,
+    val speed: Double
 )
 /*      this needs to be muted temporarily
 class MainActivity : ComponentActivity() {
@@ -64,7 +66,9 @@ class MainActivity : ComponentActivity() {
 // **************************************************************************
 
 @Composable
-fun WorkoutPage(navController: NavController, displayedExercises: List<Exercise>
+fun WorkoutPage(
+    navController: NavController,
+    displayedExercises: List<Exercise>
 ) {
     // basic structure for the page - pass in navController for buttons
     Scaffold(
@@ -82,7 +86,7 @@ fun WorkoutPage(navController: NavController, displayedExercises: List<Exercise>
                     .padding(innerPadding)
             ) {
                 SharedContent()
-                WorkoutTiles()
+                WorkoutTiles(displayedExercises)
             }
         }
 
@@ -203,22 +207,10 @@ fun SharedContent() {
  *          handle navigation to an Exercise card
  */
 @Composable
-fun WorkoutTiles() {
+fun WorkoutTiles(exercises: List<Exercise>) {
     // create the local navController
     val navTileController = rememberNavController()
 
-    // sample data
-    // TODO: hook up the real data and delete this section
-    val tiles = remember {
-        listOf(
-            TileData(title = "Leg Press", weight = 120.0, sets = 2, reps = 10),
-            TileData(title = "Leg Extension", weight = 30.0, sets = 4, reps = 12),
-            TileData(title = "Chest Press", weight = 40.5, sets = 5, reps = 11),
-            TileData(title = "Bicep Curl", weight = 50.0, sets = 3, reps = 10),
-            TileData(title = "Squat", weight = 150.0, sets = 3, reps = 10),
-            TileData(title = "Lat Pull", weight = 50.0, sets = 3, reps = 10),
-        )
-    }
     // Setting up the local NavHost with the Exercise card as the destination
     // NO OUTSIDE NAVIGATION - primary button navigation is handed on the fitness page
     NavHost(
@@ -228,22 +220,27 @@ fun WorkoutTiles() {
             .padding(4.dp)
     ) {
         // local home screen route
-        composable("workout") { TileList(tiles, navTileController) }
+        composable("workout") { TileList(exercises, navTileController) }
 
         // route to the Exercise card and pass in the arguments
         // TODO: update this for more complex data
-        composable("exercise/{title}/{weight}/{sets}/{reps}") { backStackEntry ->
+        composable("exercise/{title}/{sets}/{reps}") { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title")
-            val weight = backStackEntry.arguments?.getString("weight")?.toDoubleOrNull()
+            val weight = 120.0  //backStackEntry.arguments?.getString("weight")?.toDoubleOrNull()
             val sets = backStackEntry.arguments?.getString("sets")?.toIntOrNull()
             val reps = backStackEntry.arguments?.getString("reps")?.toIntOrNull()
+            val time = backStackEntry.arguments?.getString("time")?.toIntOrNull()
+            val distance = backStackEntry.arguments?.getString("distance")?.toDoubleOrNull()
 
             ExerciseCard(
                 navTileController, TileData(
-                    title = title?: "Exercise",
-                    weight?: 0.0,
+                    name = title?: "Exercise",
+                    weight?: 0.0,       // lbs
                     sets?: 1,
-                    reps?:0)
+                    reps?: 1,
+                    time?: 125,            // sec
+                    distance?: 0.0      // miles
+                )
             )
         }
     }
@@ -253,11 +250,11 @@ fun WorkoutTiles() {
  *      populate the contents of one object for each tile
  */
 @Composable
-fun TileList(tiles: List<TileData>, navTileController: NavController) {
+fun TileList(exercises: List<Exercise>, navTileController: NavController) {
     LazyColumn {
-        items(tiles) { tile ->
+        items(exercises) { exercise ->
             // each individual tile
-            TileItem(tile, navTileController)
+            TileItem(exercise, navTileController)
         }
     }
 }
@@ -267,14 +264,14 @@ fun TileList(tiles: List<TileData>, navTileController: NavController) {
  *      set the button click navigation
  */
 @Composable
-fun TileItem(tile: TileData, navTileController: NavController) {
+fun TileItem(exercise: Exercise, navTileController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
                 navTileController.navigate(
-                    "exercise/${tile.title}/${tile.weight}/${tile.sets}/${tile.reps}"
+                    "exercise/${exercise.name}/${exercise.numberOfSets}/${exercise.numberOfReps}"
                 )
             },
         shape = RoundedCornerShape(8.dp),
@@ -286,7 +283,7 @@ fun TileItem(tile: TileData, navTileController: NavController) {
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = "${tile.title}       ${tile.weight} lbs",
+                text = "${exercise.name} ", //       ${tile.weight} lbs",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -295,7 +292,7 @@ fun TileItem(tile: TileData, navTileController: NavController) {
                 modifier = Modifier.height(4.dp)
             )
             Text(
-                text = "${tile.sets} sets of ${tile.reps} repetitions",
+                text = "${exercise.numberOfSets} sets of ${exercise.numberOfReps} repetitions",
                 fontSize = 16.sp,
                 color = Color.DarkGray
             )
@@ -307,8 +304,7 @@ fun TileItem(tile: TileData, navTileController: NavController) {
  *      handle button click and navigation
  */
 @Composable
-fun StatsButton(navController: NavController)
-{
+fun StatsButton(navController: NavController) {
     OutlinedButton(
         modifier = Modifier.padding(12.dp),
         shape = RoundedCornerShape(16.dp),

@@ -44,11 +44,11 @@ fun SummaryLayout(navController: NavController) {
 
     // Sample exercise data
     val exercises = listOf(
-        TileData(title = "Leg", weight = 120.0, sets = 2, reps = 10),
-        TileData(title = "Squat", weight = 150.0, sets = 3, reps = 10),
-        TileData(title = "Chest", weight = 40.0, sets = 5, reps = 11),
-        TileData(title = "Bicep", weight = 50.0, sets = 3, reps = 10),
-        TileData(title = "Pull", weight = 50.0, sets = 3, reps = 10),
+        TileData(name = "Leg", weight = 120.0, sets = 2, reps = 10, time = 0, speed = 0.0),
+        TileData(name = "Squat", weight = 150.0, sets = 3, reps = 10, time = 0, speed = 0.0),
+        TileData(name = "Chest", weight = 40.0, sets = 5, reps = 11, time = 0, speed = 0.0),
+        TileData(name = "Bicep", weight = 50.0, sets = 3, reps = 10, time = 0, speed = 0.0),
+        TileData(name = "Pull", weight = 50.0, sets = 3, reps = 10, time = 0, speed = 0.0),
     )
 
     Column(modifier = Modifier.padding(8.dp)) {
@@ -83,7 +83,7 @@ fun SummaryLayout(navController: NavController) {
             exercises.forEach { exercise ->
                 ColumnWithDivider(
                     content = {
-                        Text(exercise.title, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
+                        Text(exercise.name, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
                         HorizontalDivider(color = Color.Black, thickness = 1.dp)
                         Text(exercise.weight.toString(), modifier = Modifier.padding(8.dp))
                         HorizontalDivider(color = Color.Black, thickness = 1.dp)
