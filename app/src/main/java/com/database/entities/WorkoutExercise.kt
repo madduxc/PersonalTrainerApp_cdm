@@ -22,6 +22,7 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index("workoutId"), Index("exerciseId")]
 )
+// joins Workout and Exercise tables, so exercises can be associated to workout
 data class WorkoutExercise(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val workoutId: Int,
