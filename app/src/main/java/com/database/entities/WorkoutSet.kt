@@ -16,12 +16,15 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index("workoutExerciseId")]
 )
+// data for an individual set of a workout exercise
 data class WorkoutSet(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val workoutExerciseId: Int,
     val reps: Int,
-    val weight: Float,
-    val time: Int,
+    val weight: Float? = null,  // optional attributes, only use the ones necessary for a given exercise
+    val time: Float? = null,
+    val distance: Float? = null,
+    val speed: Float? = null,
     val intensity: String,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()

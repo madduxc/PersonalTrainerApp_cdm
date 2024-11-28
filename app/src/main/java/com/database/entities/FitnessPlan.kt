@@ -16,6 +16,7 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index("userId")]
 )
+
 data class FitnessPlan(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val userId: Int,

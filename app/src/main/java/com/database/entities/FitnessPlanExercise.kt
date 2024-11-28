@@ -22,6 +22,7 @@ import androidx.room.Index
     ],
     indices = [Index("fitnessPlanId"), Index("exerciseId")]
 )
+// joins FitnessPlan and Exercise tables, so exercises can be associated to a user's fitness plan
 data class FitnessPlanExercise(
     val fitnessPlanId: Int,
     val exerciseId: Int,
