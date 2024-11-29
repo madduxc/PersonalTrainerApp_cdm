@@ -76,7 +76,8 @@ fun ExerciseCard(navController: NavController, data: TileData) {
                     .fillMaxWidth()
                     .verticalScroll(scrollState)
             ) {
-                // generate a summary
+                // this section generates the summary and gathers data to be sent the the database
+                // code is somewhat repetitious, but it simplifies data handling within the loop.
                 if (data.reps > 1) {
                     if (data.weight > 0) {
 
@@ -93,15 +94,23 @@ fun ExerciseCard(navController: NavController, data: TileData) {
                     }
                 }
                 else {
+                    // text handles all combinations
+                    ExerciseTextTimeSpeedDistance(data)
+
                     if (data.time > 0) {
-                        ExerciseTextTime(data)
-
-                        // create the individual input fields & handle data
-                        ExerciseInputsTime(data)
+                        // handle time + speed
+                        if (data.speed > 0) {
+                            //
+                            ExerciseInputsTime(data)
+                        }
+                        // hande time + distance
+                        else if (data.distance > 0) {
+                            //
+                            ExerciseInputsTime(data)
+                        }
                     }
+                    // handle speed + distance
                     else {
-                        ExerciseTextDistance(data)
-
                         // create the individual input fields & handle data
                         ExerciseInputsDistance(data)
                     }
@@ -162,62 +171,75 @@ fun ExerciseTextResistance(data: TileData) {
     )
 }
 
-/** ExerciseTextTime - offer encouragement and summarize the exercise
+/** ExerciseTextTimeSpeedDistance - offer encouragement and summarize the exercise
  *      identify the exercise
  *      outline the exercise goal
  */
 @Composable
-fun ExerciseTextTime(data: TileData) {
-    val minutes: Int =  data.time / 60
-    val seconds: Int = data.time % 60
+fun ExerciseTextTimeSpeedDistance(data: TileData) {
+    val minutes: Double =  data.time / 60
+    val seconds: Double = data.time % 60
 
+    // greeting
     Text(
         text = "Time to Work Out!",
         modifier = Modifier.padding(20.dp, 8.dp),
         fontSize = 36.sp
     )
+    // the exercise
     Text(
         text = data.name,
         modifier = Modifier.padding(8.dp, 4.dp),
         fontSize = 28.sp
     )
-    if (minutes > 0) {
-        Text(
-            text = " for $minutes minutes, $seconds seconds",
-            modifier = Modifier.padding(8.dp, 4.dp),
-            fontSize = 28.sp
-        )
+    // handle speed + distance
+    if (data.time > 0) {
+        // handle seconds only (rare)
+        if (minutes < 1) {
+            Text(
+                text = " for $seconds seconds",
+                modifier = Modifier.padding(8.dp, 4.dp),
+                fontSize = 28.sp
+            )
+        }
+        // handle time
+        else {
+            Text(
+                text = " for ${minutes.toInt()} minutes, ${seconds.toInt()} seconds",
+                modifier = Modifier.padding(8.dp, 4.dp),
+                fontSize = 28.sp
+            )
+        }
     }
-    else {
-        Text(
-            text = " for $seconds seconds",
-            modifier = Modifier.padding(8.dp, 4.dp),
-            fontSize = 28.sp
-        )
-    }
-}
 
-/** ExerciseTextDistance - offer encouragement and summarize the exercise
- *      identify the exercise
- *      outline the exercise goal
- */
-@Composable
-fun ExerciseTextDistance(data: TileData) {
-    Text(
-        text = "Ready to go",
-        modifier = Modifier.padding(20.dp, 8.dp),
-        fontSize = 36.sp
-    )
-    Text(
-        text = "the Distance?",
-        modifier = Modifier.padding(20.dp, 8.dp),
-        fontSize = 36.sp
-    )
-    Text(
-        text = "${data.name} for ${data.speed} miles.",
-        modifier = Modifier.padding(8.dp, 4.dp),
-        fontSize = 28.sp
-    )
+    // handle speed
+    if (data.speed > 0) {
+        Text(
+            text = " Try to maintain ${data.speed} miles per hour",
+            modifier = Modifier.padding(8.dp, 4.dp),
+            fontSize = 28.sp
+        )
+    }
+    // handle distance
+    if (data.distance > 0) {
+        // distance less than one mile
+        if (data.distance < 1) {
+            val yards = (data.distance * 1760).toInt()
+            Text(
+                text = " Your goal is $yards yards",
+                modifier = Modifier.padding(8.dp, 4.dp),
+                fontSize = 28.sp
+            )
+        }
+        // distance greater than one mile
+        else {
+            Text(
+                text = " Your goal is ${data.distance} miles",
+                modifier = Modifier.padding(8.dp, 4.dp),
+                fontSize = 28.sp
+            )
+        }
+    }
 }
 
 // **************************************************************************
@@ -461,15 +483,19 @@ fun ExerciseInputsTime(data: TileData) {
     // save as seconds an convert to minutes/seconds for display
     val savedInputMinutes = remember { mutableStateOf("") }
     val savedInputSeconds = remember { mutableStateOf("") }
+    val savedInputDistance = remember { mutableStateOf("") }
+    val savedInputSpeed = remember { mutableStateOf("") }
     var savedMinutesValue by remember { mutableIntStateOf(0) }
     var savedSecondsValue by remember { mutableIntStateOf(0) }
-    var savedTime by remember { mutableIntStateOf(0) }
+    var savedTime by remember { mutableStateOf(0.0f) }
+    var savedDistanceValue by remember { mutableStateOf(0.0f) }
+    var savedSpeedValue by remember { mutableStateOf(0.0f) }
 
     Column {
+        // intro
         Row(
             modifier = Modifier.align(Alignment.Start)
-        )
-        {
+        ) {
             // state the set number
             Text(
                 text = "This session:",
@@ -477,89 +503,223 @@ fun ExerciseInputsTime(data: TileData) {
                 fontSize = 24.sp,
             )
         }
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Spacer(
-                modifier = Modifier.width(8.dp)
-            )
-            // gather the number of reps done
-            // use number pad to gather integers only
-            TextField(
-                value = savedInputMinutes.value,
-                onValueChange = {
-                    savedInputMinutes.value = it
-                },
-                modifier = Modifier
-                    .width(48.dp)
-                    .height(28.dp)
-                    .padding(12.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
+        // time
+        if (data.time > 0) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Spacer(
+                    modifier = Modifier.width(8.dp)
                 )
-            )
-            Text(
-                text = " minutes  ",
-                modifier = Modifier.padding(0.dp, 8.dp),
-                fontSize = 20.sp,
-            )
-            // use number pad to gather integers/doubles only
-            TextField(
+                // gather the minutes of the exercise
+                // use number pad to gather numbers only
+                TextField(
+                    value = savedInputMinutes.value,
+                    onValueChange = {
+                        savedInputMinutes.value = it
+                    },
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(28.dp)
+                        .padding(12.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Text(
+                    text = " min.  ",
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    fontSize = 20.sp,
+                )
+                // gather the seconds of the exercise
+                // use number pad to gather integers/doubles only
+                TextField(
 
-                value = savedInputSeconds.value,
-                onValueChange = {
-                    savedInputSeconds.value = it
-                },
-                modifier = Modifier
-                    .width(52.dp)
-                    .height(32.dp)
-                    .padding(4.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
+                    value = savedInputSeconds.value,
+                    onValueChange = {
+                        savedInputSeconds.value = it
+                    },
+                    modifier = Modifier
+                        .width(52.dp)
+                        .height(32.dp)
+                        .padding(4.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
                 )
-            )
-            Text(
-                text = " seconds ",
-                modifier = Modifier.padding(0.dp, 8.dp),
-                fontSize = 20.sp,
-            )
-            // create a save button for this input
-            FilledIconButton(
-                modifier = Modifier
-                    .padding(8.dp, 0.dp)
-                    .size(32.dp),
-                onClick = {
-                    // Save current inputs to the savedInputs list
-                    savedTime = (savedInputMinutes.value.toIntOrNull() ?: 1) * 60 + (savedInputSeconds.value.toIntOrNull() ?: 1)
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "checkmark"
+                Text(
+                    text = " sec. ",
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    fontSize = 20.sp,
                 )
-            }
-            Spacer(
-                modifier = Modifier.width(20.dp)
-            )
-            // create an edit button for this input
-            FilledIconButton(
-                modifier = Modifier
-                    .padding(8.dp, 0.dp)
-                    .size(32.dp),
-                onClick = {
-                    // Set the saved value to zero
-                    savedSecondsValue = 0
-                    savedMinutesValue = 0
+                // create a save button for this input
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Save current inputs to the savedInputs list
+                        savedTime = (savedInputMinutes.value.toFloatOrNull()?: 0f) * 60 + (savedInputSeconds.value.toFloatOrNull()?: 1f)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "checkmark"
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = "edit"
+                Spacer(
+                    modifier = Modifier.width(20.dp)
                 )
+                // create an edit button for this input
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Set the saved value to zero
+                        savedSecondsValue = 0
+                        savedMinutesValue = 0
+                        savedTime = 0f
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "edit"
+                    )
+                }
+            }
+        }
+        // speed
+        if (data.speed > 0) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+                // gather the speed of the exercise
+                // use number pad to gather numbers only
+                TextField(
+
+                    value = savedInputSpeed.value,
+                    onValueChange = {
+                        savedInputSpeed.value = it
+                    },
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(28.dp)
+                        .padding(12.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Text(
+                    text = " miles per hour ",
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    fontSize = 20.sp,
+                )
+                // create a save button for this input
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Save current inputs to the savedInputs list
+                        savedSpeedValue = savedInputSpeed.value.toFloatOrNull() ?: 0.0f
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "checkmark"
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.width(20.dp)
+                )
+                // create an edit button for this input
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Set the saved value to zero
+                        savedSpeedValue = 0f
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "edit"
+                    )
+                }
+            }
+        }
+        // distance
+        if (data.distance > 0) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+                // gather the distance travelled
+                // use number pad to gather numbers only
+                TextField(
+                    value = savedInputDistance.value,
+                    onValueChange = {
+                        savedInputDistance.value = it
+                    },
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(28.dp)
+                        .padding(12.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+                Text(
+                    text = " miles",
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    fontSize = 20.sp,
+                )
+                // create a save button for this input
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Save current inputs to the savedInputs list
+                        savedDistanceValue = savedInputDistance.value.toFloatOrNull()?: 0f
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "checkmark"
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.width(20.dp)
+                )
+                // create an edit button for this input
+                FilledIconButton(
+                    modifier = Modifier
+                        .padding(8.dp, 0.dp)
+                        .size(32.dp),
+                    onClick = {
+                        // Set the saved value to zero
+                        savedDistanceValue = 0f
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "edit"
+                    )
+                }
             }
         }
         // testing only
-        Text(" Time Entered: $savedTime seconds")
+        Text(" Time Entered    : $savedTime seconds")
+        Text(" Speed Entered   : $savedSpeedValue mph")
+        Text(" Distance Entered: $savedDistanceValue miles")
     }
 }
 
@@ -573,7 +733,6 @@ fun ExerciseInputsTime(data: TileData) {
 @Composable
 fun ExerciseInputsDistance(data: TileData) {
     // List to store saved inputs
-    // save as seconds an convert to minutes/seconds for display
     val savedInputDistance = remember { mutableStateOf("") }
     var savedDistanceValue by remember { mutableStateOf(0) }
     // list for each input field
@@ -650,8 +809,6 @@ fun ExerciseInputsDistance(data: TileData) {
                 )
             }
         }
-        // testing only
-        Text(" Time Entered: $savedDistanceValue seconds")
     }
 }
 

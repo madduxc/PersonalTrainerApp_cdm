@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -41,27 +42,15 @@ import java.util.Calendar
 // **********************************************************************************
 
 // represents tile data
-// @Serializable
 data class TileData(
     val name: String,
-    val weight: Double,
     val sets: Int,
     val reps: Int,
-    val time: Int,
-    val speed: Double
+    val weight: Double,
+    val time: Double,
+    val speed: Double,
+    val distance: Double
 )
-/*      this needs to be muted temporarily
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                WorkoutPage(navController = rememberNavController()
-                )
-            }
-        }
-    }
-}*/
 
 // **************************************************************************
 
@@ -224,22 +213,24 @@ fun WorkoutTiles(exercises: List<Exercise>) {
 
         // route to the Exercise card and pass in the arguments
         // TODO: update this for more complex data
-        composable("exercise/{title}/{sets}/{reps}") { backStackEntry ->
+        composable("exercise/{title}/{sets}/{reps}/{weight}/{time}/{speed}/{distance}") { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title")
-            val weight = 120.0  //backStackEntry.arguments?.getString("weight")?.toDoubleOrNull()
             val sets = backStackEntry.arguments?.getString("sets")?.toIntOrNull()
             val reps = backStackEntry.arguments?.getString("reps")?.toIntOrNull()
-            val time = backStackEntry.arguments?.getString("time")?.toIntOrNull()
+            val weight = backStackEntry.arguments?.getString("weight")?.toDoubleOrNull()
+            val time = backStackEntry.arguments?.getString("time")?.toDoubleOrNull()
+            val speed = backStackEntry.arguments?.getString("speed")?.toDoubleOrNull()
             val distance = backStackEntry.arguments?.getString("distance")?.toDoubleOrNull()
 
             ExerciseCard(
                 navTileController, TileData(
                     name = title?: "Exercise",
-                    weight?: 0.0,       // lbs
                     sets?: 1,
                     reps?: 1,
-                    time?: 125,            // sec
-                    distance?: 0.0      // miles
+                    weight?: 0.0,       // lbs
+                    time?: 100.0,           // sec
+                    speed?: 0.0,         // sec
+                    distance?: 0.0     // miles
                 )
             )
         }
@@ -271,7 +262,8 @@ fun TileItem(exercise: Exercise, navTileController: NavController) {
             .padding(8.dp)
             .clickable {
                 navTileController.navigate(
-                    "exercise/${exercise.name}/${exercise.numberOfSets}/${exercise.numberOfReps}"
+                    "exercise/${exercise.name}/${exercise.numberOfSets}/${exercise.numberOfReps}" +
+                             "/${exercise.weight}/${exercise.time}/${exercise.speed}/${exercise.distance}"
                 )
             },
         shape = RoundedCornerShape(8.dp),
@@ -282,20 +274,67 @@ fun TileItem(exercise: Exercise, navTileController: NavController) {
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
+            if (exercise.weight != null)
             Text(
-                text = "${exercise.name} ", //       ${tile.weight} lbs",
+                text = "${exercise.name}        ${exercise.weight} lbs",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+            else {
+                Text(
+                    text = "${exercise.name} ",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             Spacer(
                 modifier = Modifier.height(4.dp)
             )
-            Text(
-                text = "${exercise.numberOfSets} sets of ${exercise.numberOfReps} repetitions",
-                fontSize = 16.sp,
-                color = Color.DarkGray
-            )
+            if (exercise.numberOfSets != null && exercise.numberOfReps != null) {
+                Text(
+                    text = "${exercise.numberOfSets} sets of ${exercise.numberOfReps} repetitions",
+                    fontSize = 16.sp,
+                    color = Color.DarkGray
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
+                    // handle time
+                    if (exercise.time != null) {
+                        Text(
+                            text = "${exercise.time} sec.",
+                            fontSize = 16.sp,
+                            color = Color.DarkGray
+                        )
+                        Spacer(
+                            modifier = Modifier.width(8.dp)
+                        )
+                    }
+                    if (exercise.speed != null) {
+                        Text(
+                            text = "${exercise.speed} MPH",
+                            fontSize = 16.sp,
+                            color = Color.DarkGray
+                        )
+                        Spacer(
+                            modifier = Modifier.width(8.dp)
+                        )
+                    }
+                    if (exercise.distance != null) {
+                        Text(
+                            text = "${exercise.distance} miles",
+                            fontSize = 16.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
+            }
         }
     }
 }
